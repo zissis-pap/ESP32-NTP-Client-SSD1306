@@ -8,18 +8,16 @@
 #include <Adafruit_SSD1306.h>
 
 // Replace with your network credentials
-const char* ssid     = "******";
-const char* password = "******";
+const char* ssid     = "CYTAA1BD";
+const char* password = "ZTE1G8FJ4702418!E";
 
 // Define OLED specs
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// Declaration for an SSD1306 display connected to I2C (SDA to pin 21, SCL to pin 22)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-// SDA PIN to 21
-// SCL pin to22
 
 // Enable buzzer connected to pin 32
 #define Buzzer 32
@@ -39,20 +37,13 @@ String timeStamp;
 // Store day and month names
 const String Days[] = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"}; 
 const String Months[] = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
-int secondsIndex; // Stores seconds
-int minutesIndex; // Stores minutes
-int hoursIndex; // Stores hours
-int dayIndex; // Stores day of week
-int monthDay; // Stores day of month
-int monthIndex; // Stores month
-int year; // Stores year
-// Variables to check passed time without using delay
-long PassedTime;
-// Initialize at non valid numbers so that the function updates their values on first call
-int lastminute {61}; 
-int lasthour {25};
-int lastday;
-int lastmonth;
+uint8_t secondsIndex; // Stores seconds
+uint8_t minutesIndex; // Stores minutes
+uint8_t hoursIndex; // Stores hours
+uint8_t dayIndex; // Stores day of week
+uint8_t monthDay; // Stores day of month
+uint8_t monthIndex; // Stores month
+uint16_t year; // Stores year
 
 // Functions
 void Time(void);
@@ -103,12 +94,12 @@ void setup() {
   // Initialize a NTPClient to get time
   timeClient.begin();
   timeClient.setTimeOffset(7200);
-  PassedTime = millis();
   Buzz(2, 100);
   DrawLineAnimated(9, 9);
 }
 
 void loop() {
+  static unsigned long PassedTime{0}; // Variable to check passed time without using delay
   while(!timeClient.update()) { 
     timeClient.forceUpdate();
   }
@@ -116,6 +107,7 @@ void loop() {
     Time();
     display.clearDisplay();
     DefaultFrame();
+    PassedTime = millis();
   }
   if (WiFi.status() == WL_CONNECTED) DisplayRawText("WiFi", 0, 57, 1);
   display.display();
@@ -158,6 +150,12 @@ void Buzz(unsigned int i, unsigned int j) {
 
 void Time(void) {
   digitalWrite(LedBuiltIn, HIGH);
+  // Initialize at non valid numbers so that the function updates their values on first call
+  static uint8_t lastminute {61}; 
+  static uint8_t lasthour {25};
+  static uint8_t lastday;
+  static uint8_t lastmonth;
+
   // The formattedDate comes with the following format:
   // 2018-05-28T16:00:13Z
   // We need to extract date and time
@@ -182,13 +180,11 @@ void Time(void) {
       }
     }
   }
-   
   // Extract date
   int splitT = formattedDate.indexOf("T");
   //dayStamp = formattedDate.substring(0, splitT);
   // Extract time
   timeStamp = formattedDate.substring(splitT+1, formattedDate.length()-1);
-  PassedTime = millis();
   digitalWrite(LedBuiltIn, LOW);
 }
 
