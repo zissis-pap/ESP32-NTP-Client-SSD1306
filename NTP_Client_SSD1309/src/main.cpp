@@ -8,8 +8,8 @@
 #include <Adafruit_SSD1306.h>
 
 // Replace with your network credentials
-const char* ssid     = "CYTAA1BD";
-const char* password = "ZTE1G8FJ4702418!E";
+const char* ssid     = "******";
+const char* password = "******";
 
 // Define OLED specs
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
